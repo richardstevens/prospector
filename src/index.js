@@ -32,12 +32,13 @@ if (!serpKeyword) {
   console.log('No keyword provided')
   process.exit()
 }
+const searchNum = process.env.count || 50
 
 let scrape = async () => {
   const browser = await puppeteer.launch({headless: true})
   const page = await browser.newPage()
 
-  await page.goto('https://www.google.co.uk/search?q=' + serpKeyword + '&num=100')
+  await page.goto('https://www.google.co.uk/search?q=' + serpKeyword + '&num=' + searchNum)
   const result = await page.evaluate(async () => {
     let data = []
     let elements = document.querySelectorAll('.bkWMgd .g:not([id]):not(.gws-trips__outer-card)')

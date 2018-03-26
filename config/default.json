@@ -3,11 +3,5 @@
   "SQL_USERNAME": "prospector",
   "SQL_PASSWORD": "pr0sp3ctor345",
   "SQL_DATABASE": "prospector",
-  "cacheLink": "",
-  "circleConfig": {
-    "organisation": "richardstevens",
-    "token": "648ed1a378a4db2a61232f313609a60b27a7e662",
-    "repo": "prospector",
-    "deploymentBranch": "master"
-  }
+  "cacheLink": ""
 }
