@@ -3,7 +3,6 @@ const scrapePage = require('./functions/scrapePage')
 const database = require('./functions/mysql')
 const config = require('config')
 database.setCredentials(config)
-const timestamp = Date.now()
 
 const resultQuery = `
   INSERT INTO runs
@@ -59,7 +58,7 @@ let scrape = async () => {
 scrape()
   .then(async (values) => {
     await values.reduce((chain, page) => chain.then(async () => {
-      database.query(resultQuery, [ serpKeyword, page.link, timestamp, page.title, page.position ])
+      database.query(resultQuery, [ serpKeyword, page.link, process.env.timestamp, page.title, page.position ])
         .catch(err => {
           database.shutDown()
           console.log('mysql error', err)
