@@ -1,0 +1,33 @@
+{
+  "name": "discoverable-prospector",
+  "version": "1.0.0",
+  "description": "Discoverable Prospector project",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "npm run lint",
+    "lintfix": "standard 'src/**/*' --fix --verbose | snazzy && echo ✔ All good!",
+    "lint": "standard 'src/**/*' --verbose | snazzy && echo ✔ All good!",
+    "start": "node src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/richardstevens/prospector.git"
+  },
+  "author": "Richard Stevens <rsrichardstevens@googlemail.com> (https://github.com/richardstevens/whynopadlock)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/richardstevens/prospector/issues"
+  },
+  "homepage": "https://github.com/richardstevens/prospector#readme",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
+    "config": "^1.30.0",
+    "mysql": "^2.15.0",
+    "puppeteer": "^1.2.0",
+    "superagent": "^3.8.2"
+  },
+  "devDependencies": {
+    "snazzy": "^7.1.1",
+    "standard": "^11.0.1"
+  }
+}
