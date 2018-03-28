@@ -45,7 +45,7 @@ let scrape = async () => {
 
     for (var element of elements) {
       let link = element.querySelectorAll('a')[0].getAttribute('href')
-      let title = element.querySelectorAll('h3')[0].innerText
+      let title = element.querySelectorAll('h3')[0].innerText || 'Direct Answer: ' + element.querySelectorAll('a')[0].innerText
       data.push({link, title, position: (data.length + 1)})
     }
 
