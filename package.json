@@ -1,7 +1,7 @@
 {
-  "name": "discoverable-prospector",
-  "version": "1.0.0",
-  "description": "Discoverable Prospector project",
+  "name": "discover-prospector",
+  "version": "1.0.1",
+  "description": "Prospector Discovery Project",
   "main": "src/index.js",
   "scripts": {
     "test": "npm run lint",
