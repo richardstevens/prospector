@@ -1,7 +1,7 @@
 const puppeteer = require('puppeteer')
 const scrapePage = require('./functions/scrapePage')
 const database = require('./functions/mysql')
-const config = require('config')
+const config = require('../config')
 database.setCredentials(config)
 
 const resultQuery = `
