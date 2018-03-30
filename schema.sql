@@ -28,17 +28,29 @@ CREATE TABLE `categories` (
   `keywords` text NOT NULL,
   PRIMARY KEY (`id`),
   KEY `name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `categories`
+-- Table structure for table `login`
 --
 
-LOCK TABLES `categories` WRITE;
-/*!40000 ALTER TABLE `categories` DISABLE KEYS */;
-/*!40000 ALTER TABLE `categories` ENABLE KEYS */;
-UNLOCK TABLES;
+DROP TABLE IF EXISTS `login`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `login` (
+  `email` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `token` varchar(255) DEFAULT NULL,
+  `attempts` int(2) DEFAULT '0',
+  `company` varchar(255) NOT NULL DEFAULT 'test',
+  `level` int(1) NOT NULL DEFAULT '0',
+  `lastlogin` datetime DEFAULT CURRENT_TIMESTAMP,
+  `tokenexpiry` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`email`),
+  KEY `company` (`company`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `projects`
@@ -55,15 +67,6 @@ CREATE TABLE `projects` (
   KEY `timestamp` (`timestamp`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `projects`
---
-
-LOCK TABLES `projects` WRITE;
-/*!40000 ALTER TABLE `projects` DISABLE KEYS */;
-/*!40000 ALTER TABLE `projects` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `runs`
@@ -87,15 +90,6 @@ CREATE TABLE `runs` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `runs`
---
-
-LOCK TABLES `runs` WRITE;
-/*!40000 ALTER TABLE `runs` DISABLE KEYS */;
-/*!40000 ALTER TABLE `runs` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `scrapes`
 --
 
@@ -111,6 +105,17 @@ CREATE TABLE `scrapes` (
   `twitter` varchar(255) DEFAULT '',
   `linkedin` varchar(255) DEFAULT '',
   `form` int(1) NOT NULL DEFAULT '0',
+  `ahrefRank` int(10) DEFAULT '0',
+  `domainRank` int(3) DEFAULT '0',
+  `urlRank` int(3) DEFAULT '0',
+  `referringDomains` int(10) DEFAULT '0',
+  `backlinks` int(10) DEFAULT '0',
+  `linkedDomains` int(10) DEFAULT '0',
+  `brokenLinks` int(10) DEFAULT '0',
+  `organicKeywords` int(10) DEFAULT '0',
+  `twitterCount` int(10) DEFAULT '0',
+  `facebookCount` int(10) DEFAULT '0',
+  `pinterestCount` int(10) DEFAULT '0',
   PRIMARY KEY (`url`),
   KEY `email` (`email`),
   KEY `phone` (`phone`),
@@ -120,15 +125,6 @@ CREATE TABLE `scrapes` (
   KEY `form` (`form`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `scrapes`
---
-
-LOCK TABLES `scrapes` WRITE;
-/*!40000 ALTER TABLE `scrapes` DISABLE KEYS */;
-/*!40000 ALTER TABLE `scrapes` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -139,4 +135,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-03-27 11:09:13
+-- Dump completed on 2018-03-30 12:27:12

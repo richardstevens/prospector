@@ -1,5 +1,7 @@
 const puppeteer = require('puppeteer')
+const logger = require('./functions/logger')
 const scrapePage = require('./functions/scrapePage')
+const getaHrefData = require('./functions/ahrefs')
 const database = require('./functions/mysql')
 const config = require('../config')
 database.setCredentials(config)
@@ -15,8 +17,8 @@ const resultQuery = `
 `
 const scrapeQuery = `
   INSERT INTO scrapes
-  (url, title, email, phone, facebook, twitter, linkedin, form)
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  (url, title, email, phone, facebook, twitter, linkedin, form, ahrefRank, domainRank, urlRank, referringDomains, backlinks, linkedDomains, brokenLinks, organicKeywords, twitterCount, facebookCount, pinterestCount)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   ON DUPLICATE KEY UPDATE
     title=VALUES(title),
     email=VALUES(email),
@@ -24,22 +26,36 @@ const scrapeQuery = `
     facebook=VALUES(facebook),
     twitter=VALUES(twitter),
     linkedin=VALUES(linkedin),
-    form=VALUES(form)
+    form=VALUES(form),
+    ahrefRank=VALUES(ahrefRank),
+    domainRank=VALUES(domainRank),
+    urlRank=VALUES(urlRank),
+    referringDomains=VALUES(referringDomains),
+    backlinks=VALUES(backlinks),
+    linkedDomains=VALUES(linkedDomains),
+    brokenLinks=VALUES(brokenLinks),
+    organicKeywords=VALUES(organicKeywords),
+    twitterCount=VALUES(twitterCount),
+    facebookCount=VALUES(facebookCount),
+    pinterestCount=VALUES(pinterestCount)
 `
 
 const serpKeyword = process.env.keyword
 if (!serpKeyword) {
-  console.log('No keyword provided')
+  logger.warn('No keyword provided')
   process.exit()
 }
+logger.info('Started timer', logger.timer('prospector'))
 const searchNum = process.env.count || 50
 
 let scrape = async () => {
   const browser = await puppeteer.launch({headless: true})
   const page = await browser.newPage()
+  await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36')
+  await page.setViewport({ width: 1024, height: 768 })
 
   await page.goto('https://www.google.co.uk/search?q=' + serpKeyword + '&num=' + searchNum)
-  const result = await page.evaluate(async () => {
+  let results = await page.evaluate(async () => {
     let data = []
     let elements = document.querySelectorAll('.bkWMgd .g:not([id]):not(.gws-trips__outer-card)')
 
@@ -51,28 +67,45 @@ let scrape = async () => {
 
     return data
   })
-
+  results = await getaHrefData({
+    page,
+    results
+  })
+  logger.debug('results', results)
   browser.close()
-  return result
+  return results
 }
 
 scrape()
   .then(async (values) => {
     await values.reduce((chain, page) => chain.then(async () => {
-      database.query(resultQuery, [ serpKeyword, page.link, process.env.timestamp, page.title, page.position ])
-        .catch(err => {
-          database.shutDown()
-          console.log('mysql error', err)
-        })
+      database.query(resultQuery, [ serpKeyword, page.link, process.env.timestamp, page.title, page.position ]).catch(logger.error)
       const pageData = await scrapePage(page.link)
       if (!pageData.ran) return chain
-      console.log('Running:', page.link)
-      database.query(scrapeQuery, [ page.link, page.title, pageData.email, pageData.phone, pageData.facebook, pageData.twitter, pageData.linkedin, pageData.form ])
-        .catch(err => {
-          database.shutDown()
-          console.log('mysql error', err)
-        })
+      logger.info('Saving:', page.link)
+      database.query(scrapeQuery, [
+        page.link,
+        page.title,
+        pageData.email,
+        pageData.phone,
+        pageData.facebook,
+        pageData.twitter,
+        pageData.linkedin,
+        pageData.form,
+        pageData.ahrefs.ahrefRank,
+        pageData.ahrefs.domainRank,
+        pageData.ahrefs.urlRank,
+        pageData.ahrefs.referringDomains,
+        pageData.ahrefs.backlinks,
+        pageData.ahrefs.linkedDomains,
+        pageData.ahrefs.brokenLinks,
+        pageData.ahrefs.organicKeywords,
+        pageData.ahrefs.social.twitter,
+        pageData.ahrefs.social.facebook,
+        pageData.ahrefs.social.pinterest
+      ]).catch(logger.error)
     }), Promise.resolve())
-    console.log('Finished for', serpKeyword)
+    logger.info('Finished for', serpKeyword)
+    logger.info('Ended timer', logger.timerEnd('prospector'))
     process.exit()
   })

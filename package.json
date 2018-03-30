@@ -22,8 +22,10 @@
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
     "mysql": "^2.15.0",
+    "pino": "^4.13.0",
     "puppeteer": "^1.2.0",
-    "superagent": "^3.8.2"
+    "superagent": "^3.8.2",
+    "through2": "^2.0.3"
   },
   "devDependencies": {
     "snazzy": "^7.1.1",
