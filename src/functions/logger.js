@@ -2,26 +2,19 @@ const pino = require('pino')
 const through = require('through2')
 
 const logger = module.exports = { }
-
 const timers = {}
 const levels = [ 'fatal', 'error', 'warn', 'info', 'debug', 'trace' ]
-levels.forEach(level => {
-  logger[level] = console.log.bind(console)
-})
-
-let stream = through(function (buffer, enc, callback) {
+const stream = through(function (buffer, enc, callback) {
   callback(null, buffer)
 })
-
 stream.pipe(pino.pretty()).pipe(process.stderr)
 
-const realLogger = pino({
+const pinoLogger = pino({
   timestamp: pino.stdTimeFunctions.slowTime
 }, stream)
 levels.forEach(level => {
-  logger[level] = function (...args) { realLogger[level].apply(realLogger, args) }
+  logger[level] = (...args) => pinoLogger[level].apply(pinoLogger, args)
 })
-logger._raw = realLogger
 
 logger.timer = name => {
   timers[name] = new Date()
@@ -38,8 +31,3 @@ logger.timerEnd = name => {
   var seconds = Math.floor(diff / 1000)
   return name + ' ' + (hours ? hours + 'hrs ' : '') + (mins ? mins + 'mins ' : '') + (seconds ? seconds + 'secs' : '')
 }
-
-console.log = logger.fatal.bind(logger, { accidental: 'console.log' })
-console.error = logger.error.bind(logger, { accidental: 'console.error' })
-console.warn = logger.warn.bind(logger, { accidental: 'console.warn' })
-console.info = logger.info.bind(logger, { accidental: 'console.info' })

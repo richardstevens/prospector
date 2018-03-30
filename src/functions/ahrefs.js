@@ -33,23 +33,8 @@ const click = async (page, selector) => {
   }
 }
 
-const scrape = async (result, page) => {
-  result.ahrefData = {
-    ahrefRank: 0,
-    domainRank: 0,
-    urlRank: 0,
-    referringDomains: 0,
-    backlinks: 0,
-    linkedDomains: 0,
-    brokenLinks: 0,
-    organicKeywords: 0,
-    social: {
-      twitter: 0,
-      facebook: 0,
-      pinterest: 0
-    }
-  }
-  if (!ahrefs.USERNAME || !ahrefs.PASSWORD) return result
+const ahrefScrape = async (result, page) => {
+  if (!ahrefs.USERNAME || !ahrefs.PASSWORD) return result.ahrefData
   logger.info('Getting ahref data for', result.link)
   await page.waitFor(5 * 1000)
   await page.goto(ahrefs.LOGIN_URL)
@@ -137,20 +122,7 @@ const scrape = async (result, page) => {
     logger.error('error', e)
     await page.screenshot({path: 'screenshots/' + convertString(result.link) + '.png'})
   }
-  return result
+  return result.ahrefData
 }
 
-const runScrape = async opts => {
-  const { page, results } = opts
-  const output = []
-  await results
-    .reduce((chain, result) => chain
-      .then(async () => {
-        const response = await scrape(result, page)
-        output.push(response)
-        return response
-      }), Promise.resolve())
-  return output
-}
-
-module.exports = runScrape
+module.exports = ahrefScrape

@@ -1,46 +1,37 @@
 const request = require('superagent')
 const cheerio = require('cheerio')
 
-const scrapePage = async (url) => {
-  const data = {
-    url,
-    email: '',
-    phone: '',
-    facebook: '',
-    twitter: '',
-    linkedin: '',
-    form: false,
-    ran: false
-  }
+const scrapePage = async result => {
+  if (!result.link) return result.pageData
   try {
     const response = await request
-      .get(url)
+      .get(result.link)
       .redirects(2)
       .timeout({
         response: 5000, // Wait 5 seconds for the server to start sending,
         deadline: 60000 // but allow 1 minute for the file to finish loading.
       })
-    const domain = getDomain(url)
-    if (!response || !response.text) return data
+    const domain = getDomain(result.link)
+    if (!response || !response.text) return result.pageData
     const $ = cheerio.load(response.text)
     // Ideally maybe we should just scrape the entire source for matching elements with regex?
     $('a[href]').each((i, element) => {
       const a = element.attribs.href
-      data.facebook = isFaceBookLink(a)
-      data.twitter = isTwitterLink(a)
-      data.linkedin = isLinkedInLink(a)
-      data.email = isEmail(a, domain)
-      data.phone = isPhone(a)
+      result.pageData.facebook = isFaceBookLink(a)
+      result.pageData.twitter = isTwitterLink(a)
+      result.pageData.linkedin = isLinkedInLink(a)
+      result.pageData.email = isEmail(a, domain)
+      result.pageData.phone = isPhone(a)
     })
     $('form').each((i, element) => {
       const form = $(element).html()
-      if (isForm(form)) data.form = true
+      if (isForm(form)) result.pageData.form = true
     })
-    data.ran = true
+    result.pageData.ran = true
   } catch (error) {
-    console.log('Couldn\'t get', url)
+    console.log('Couldn\'t get', result.link)
   }
-  return data
+  return result.pageData
 }
 
 const getDomain = (url) => {
