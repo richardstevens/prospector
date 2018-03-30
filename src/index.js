@@ -48,7 +48,7 @@ const saveRun = async result => {
     coreTimestamp,
     title,
     position
-  ]).catch(logger.error)
+  ]).catch(logger.debug)
 }
 const saveResult = async result => {
   const { link, title, pageData, ahrefData } = result
@@ -73,11 +73,11 @@ const saveResult = async result => {
     ahrefData.social.twitter,
     ahrefData.social.facebook,
     ahrefData.social.pinterest
-  ]).catch(logger.error)
+  ]).catch(logger.debug)
 }
-const screenshot = async (filename, page) => {
-  await page.screenshot({path: 'screenshots/' + filename + '.png'})
-}
+// const screenshot = async (filename, page) => {
+//   await page.screenshot({path: 'screenshots/' + filename + '.png'})
+// }
 
 const serpKeyword = process.env.keyword
 if (!serpKeyword) {
@@ -109,7 +109,7 @@ const scrape = async () => {
     }
     return data
   })
-  pagesFound.map(async pageData => {
+  await pagesFound.reduce((chain, pageData) => chain.then(async () => {
     const result = {
       position: pageData.position,
       link: pageData.link,
@@ -138,20 +138,22 @@ const scrape = async () => {
         }
       }
     }
-    saveResult(result) // Save the basics
+    await saveRun(result)
+    await saveResult(result) // Save the basics
     result.pageData = await scrapePage(result)
-    saveResult(result) // Save initial pageData
+    await saveResult(result) // Save initial pageData
     result.ahrefData = await ahrefScrape(result, page)
-    saveResult(result) // Save the ahrefData too
-    saveRun(result)
+    await saveResult(result) // Save the ahrefData too
     results.push(result)
-  })
+    return chain
+  }), Promise.resolve())
   browser.close()
   return results // Pass all results back
 }
 
 scrape()
-  .then(() => {
+  .then(results => {
+    logger.info(results)
     logger.info('Finished for', serpKeyword)
     logger.info('Ended timer', logger.timerEnd('prospector'))
     process.exit()

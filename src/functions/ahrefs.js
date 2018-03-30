@@ -34,7 +34,7 @@ const click = async (page, selector) => {
 }
 
 const ahrefScrape = async (result, page) => {
-  if (!ahrefs.USERNAME || !ahrefs.PASSWORD) return result.ahrefData
+  if (!ahrefs.USERNAME || !ahrefs.PASSWORD) return Promise.resolve(result.ahrefData)
   logger.info('Getting ahref data for', result.link)
   await page.waitFor(5 * 1000)
   await page.goto(ahrefs.LOGIN_URL)
@@ -122,7 +122,7 @@ const ahrefScrape = async (result, page) => {
     logger.error('error', e)
     await page.screenshot({path: 'screenshots/' + convertString(result.link) + '.png'})
   }
-  return result.ahrefData
+  return Promise.resolve(result.ahrefData)
 }
 
 module.exports = ahrefScrape

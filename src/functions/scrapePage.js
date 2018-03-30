@@ -1,8 +1,10 @@
 const request = require('superagent')
+const logger = require('./logger')
 const cheerio = require('cheerio')
 
 const scrapePage = async result => {
-  if (!result.link) return result.pageData
+  logger.debug('Scraping', result.link)
+  if (!result.link) return Promise.resolve(result.pageData)
   try {
     const response = await request
       .get(result.link)
@@ -12,26 +14,26 @@ const scrapePage = async result => {
         deadline: 60000 // but allow 1 minute for the file to finish loading.
       })
     const domain = getDomain(result.link)
-    if (!response || !response.text) return result.pageData
+    if (!response || !response.text) return Promise.resolve(result.pageData)
     const $ = cheerio.load(response.text)
     // Ideally maybe we should just scrape the entire source for matching elements with regex?
     $('a[href]').each((i, element) => {
       const a = element.attribs.href
-      result.pageData.facebook = isFaceBookLink(a)
-      result.pageData.twitter = isTwitterLink(a)
-      result.pageData.linkedin = isLinkedInLink(a)
-      result.pageData.email = isEmail(a, domain)
-      result.pageData.phone = isPhone(a)
+      if (!result.pageData.facebook) result.pageData.facebook = isFaceBookLink(a)
+      if (!result.pageData.twitter) result.pageData.twitter = isTwitterLink(a)
+      if (!result.pageData.linkedin) result.pageData.linkedin = isLinkedInLink(a)
+      if (!result.pageData.email) result.pageData.email = isEmail(a, domain)
+      if (!result.pageData.phone) result.pageData.phone = isPhone(a)
     })
     $('form').each((i, element) => {
       const form = $(element).html()
-      if (isForm(form)) result.pageData.form = true
+      if (isForm(form)) result.pageData.form = 1
     })
     result.pageData.ran = true
   } catch (error) {
     console.log('Couldn\'t get', result.link)
   }
-  return result.pageData
+  return Promise.resolve(result.pageData)
 }
 
 const getDomain = (url) => {
@@ -44,7 +46,7 @@ const isFaceBookLink = (link) => {
   if (!link.includes('facebook.com')) return '' // Not pointing to Facebook
   if (link.includes('=facebook.com')) return '' // This is a param
   if (link.includes('.php')) return '' // Dont want share links
-  if ((link.slice(0, -1)[0].match(/\//g) || []).length - 3 > 0) return '' // Facebook pages dont have subfolders
+  if ((link.slice(0, -1).match(/\//g) || []).length - 3 > 0) return '' // Facebook pages dont have subfolders
   link = link.split('?')[0]
   return link || ''
 }
@@ -54,7 +56,7 @@ const isTwitterLink = (link) => {
   if (link.includes('=twitter.com')) return '' // This is a param
   if (link.includes('/share?')) return '' // Dont want share links
   if (link.includes('/tweet')) return '' // Dont want tweet links
-  if ((link.slice(0, -1)[0].match(/\//g) || []).length - 3 > 0) return '' // Twitter pages dont have subfolders
+  if ((link.slice(0, -1).match(/\//g) || []).length - 3 > 0) return '' // Twitter pages dont have subfolders
   link = link.split('?')[0]
   return link || ''
 }
@@ -64,7 +66,7 @@ const isLinkedInLink = (link) => {
   if (link.includes('=linkedin.com')) return '' // This is a param
   if (!link.includes('/company/')) return '' // Dont want personal links
   if (link.includes('.php')) return '' // Dont want share links
-  if ((link.slice(0, -1)[0].match(/\//g) || []).length - 3 > 1) return '' // LinkedIn pages dont have subfolders after company/
+  if ((link.slice(0, -1).match(/\//g) || []).length - 3 > 1) return '' // LinkedIn pages dont have subfolders after company/
   link = link.split('?')[0]
   return link || ''
 }
