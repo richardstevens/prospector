@@ -92,17 +92,17 @@ scrape()
         pageData.twitter,
         pageData.linkedin,
         pageData.form,
-        pageData.ahrefs.ahrefRank,
-        pageData.ahrefs.domainRank,
-        pageData.ahrefs.urlRank,
-        pageData.ahrefs.referringDomains,
-        pageData.ahrefs.backlinks,
-        pageData.ahrefs.linkedDomains,
-        pageData.ahrefs.brokenLinks,
-        pageData.ahrefs.organicKeywords,
-        pageData.ahrefs.social.twitter,
-        pageData.ahrefs.social.facebook,
-        pageData.ahrefs.social.pinterest
+        pageData.ahrefData.ahrefRank,
+        pageData.ahrefData.domainRank,
+        pageData.ahrefData.urlRank,
+        pageData.ahrefData.referringDomains,
+        pageData.ahrefData.backlinks,
+        pageData.ahrefData.linkedDomains,
+        pageData.ahrefData.brokenLinks,
+        pageData.ahrefData.organicKeywords,
+        pageData.ahrefData.social.twitter,
+        pageData.ahrefData.social.facebook,
+        pageData.ahrefData.social.pinterest
       ]).catch(logger.error)
     }), Promise.resolve())
     logger.info('Finished for', serpKeyword)
