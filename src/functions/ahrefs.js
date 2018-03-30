@@ -55,7 +55,7 @@ const ahrefScrape = async (result, page) => {
     await click(page, ahrefs.SEARCH_BUTTON_SELECTOR)
     result.ahrefData.ahrefRank = await getValueFor({
       page,
-      selector: '#topAhrefsRank',
+      selector: '#ahrefsRankTable > tr > td:nth-child(2)',
       defaultVal: 0
     })
     result.ahrefData.domainRank = await getValueFor({
