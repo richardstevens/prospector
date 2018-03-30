@@ -54,7 +54,7 @@ const isFaceBookLink = (link) => {
 const isTwitterLink = (link) => {
   if (!link.includes('twitter.com')) return '' // Not pointing to Twitter
   if (link.includes('=twitter.com')) return '' // This is a param
-  if (link.includes('/share?')) return '' // Dont want share links
+  if (link.match(/\/share($|\?)/)) return '' // Dont want share links
   if (link.includes('/tweet')) return '' // Dont want tweet links
   if ((link.slice(0, -1).match(/\//g) || []).length - 3 > 0) return '' // Twitter pages dont have subfolders
   link = link.split('?')[0]
